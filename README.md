@@ -1,5 +1,6 @@
 # LegalDoc AI Classifier
 
+
 A **fully offline** legal document analysis platform. Upload legal documents (PDF, JPG, PNG), extract text via PaddleOCR, and ask natural-language questions answered by a local LLM grounded in Indian legal acts.
 
 No cloud APIs required — OCR runs locally with PaddleOCR and the LLM runs via Ollama.
