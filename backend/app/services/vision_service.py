@@ -14,6 +14,19 @@ from typing import List, Tuple
 os.environ.setdefault("PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT", "False")
 os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 
+# Detect CUDA availability at import time.
+try:
+    import paddle
+    if paddle.device.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0:
+        _DEVICE: str = "gpu"
+        print(f"[OCR] CUDA detected — using GPU ({paddle.device.cuda.device_count()} device(s))")
+    else:
+        _DEVICE = "cpu"
+        print("[OCR] No CUDA GPU detected — using CPU")
+except Exception as e:
+    _DEVICE = "cpu"
+    print(f"[OCR] Could not query CUDA ({e}) — falling back to CPU")
+
 import cv2
 import numpy as np
 import pypdfium2 as pdfium
@@ -38,11 +51,20 @@ def _get_ocr(lang: str = "en") -> PaddleOCR:
         raise ValueError(f"Unsupported OCR language '{lang}'.")
 
     if lang not in _ocr_instances:
-        logger.info("Initialising PaddleOCR engine (lang=%s) ...", lang)
+        logger.info(
+            "Initialising PaddleOCR engine (lang=%s, device=%s) ...", lang, _DEVICE
+        )
         start = time.perf_counter()
-        _ocr_instances[lang] = PaddleOCR(use_angle_cls=True, lang=lang)
+        _ocr_instances[lang] = PaddleOCR(
+            use_angle_cls=True,
+            lang=lang,
+            device=_DEVICE,
+        )
         elapsed = time.perf_counter() - start
-        logger.info("PaddleOCR engine (lang=%s) loaded in %.2fs", lang, elapsed)
+        logger.info(
+            "PaddleOCR engine (lang=%s, device=%s) loaded in %.2fs",
+            lang, _DEVICE, elapsed,
+        )
 
     return _ocr_instances[lang]
 
