@@ -14,7 +14,7 @@ from typing import List, Tuple
 os.environ.setdefault("PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT", "False")
 os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 
-# Detect CUDA availability at import time.
+# Detect CUDA availability at import time
 try:
     import paddle
     if paddle.device.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0:
